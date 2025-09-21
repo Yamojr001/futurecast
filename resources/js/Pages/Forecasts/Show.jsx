@@ -1,7 +1,7 @@
 // Show.jsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Head, Link } from "@inertiajs/react";
-import { ArrowLeft, LoaderCircle } from "lucide-react";
+import { ArrowLeft, LoaderCircle, Eye, Star, TrendingUp, BarChart, Shield } from "lucide-react";
 import { ethers } from "ethers";
 
 // ABIs
@@ -38,12 +38,26 @@ function BlockDagLogo({ className }) {
   );
 }
 
-export default function Show({ forecast }) {
+export default function Show({ forecast, auth, userStakeLevel = 0 }) {
   const [isLoading, setIsLoading] = useState(false);
   const [feedback, setFeedback] = useState("");
+  const [unlockedContent, setUnlockedContent] = useState(null);
+  const [isUnlocked, setIsUnlocked] = useState(false);
 
   // quick visibility for debugging env values
   console.log("ENV addresses:", { dagTokenAddress, futureCastAddress });
+
+  useEffect(() => {
+    // Check if user has already unlocked this forecast
+    if (userStakeLevel >= 50) {
+      setIsUnlocked(true);
+      if (forecast?.unlockedContent) {
+        setUnlockedContent(typeof forecast.unlockedContent === 'string' 
+          ? JSON.parse(forecast.unlockedContent) 
+          : forecast.unlockedContent);
+      }
+    }
+  }, [forecast, userStakeLevel]);
 
   if (!forecast) {
     return (
@@ -145,6 +159,12 @@ export default function Show({ forecast }) {
         setFeedback("Confirming native tx...");
         await tx.wait();
         setFeedback("Success! Forecast unlocked (native).");
+        setIsUnlocked(true);
+        if (forecast?.unlockedContent) {
+          setUnlockedContent(typeof forecast.unlockedContent === 'string' 
+            ? JSON.parse(forecast.unlockedContent) 
+            : forecast.unlockedContent);
+        }
         alert("🎉 Success — forecast unlocked (native payment).");
         setIsLoading(false);
         return;
@@ -194,6 +214,12 @@ export default function Show({ forecast }) {
       await stakeTx.wait();
 
       setFeedback("Success! Forecast unlocked (ERC20).");
+      setIsUnlocked(true);
+      if (forecast?.unlockedContent) {
+        setUnlockedContent(typeof forecast.unlockedContent === 'string' 
+          ? JSON.parse(forecast.unlockedContent) 
+          : forecast.unlockedContent);
+      }
       alert("🎉 Success — forecast unlocked (ERC20).");
     } catch (err) {
       console.error("Staking failed at top-level:", err);
@@ -218,31 +244,113 @@ export default function Show({ forecast }) {
           </header>
 
           <main className="flex-grow flex flex-col gap-6">
-            <div>
-              <p className="text-sm text-slate-400 mb-2">Select price range</p>
-              <div className="flex flex-col gap-3">
-                <div className="bg-slate-800/50 border border-slate-700 rounded-lg px-4 py-3 text-slate-300">GDP Growth Forecast (Locked)</div>
-                <div className="bg-slate-800/50 border border-slate-700 rounded-lg px-4 py-3 text-slate-300">Inflation Forecast (Locked)</div>
+            {/* Forecast Preview */}
+            <div className="bg-gradient-to-r from-slate-800/50 to-slate-700/30 border border-slate-600 rounded-lg p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <BarChart className="w-6 h-6 text-yellow-400" />
+                <h2 className="text-xl font-bold">{forecast.title}</h2>
               </div>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-slate-400">Country: {forecast.country}</span>
+                <div className="flex items-center gap-1">
+                  <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                  <span className="text-sm text-slate-300">{isUnlocked ? 'Unlocked' : 'Locked'}</span>
+                </div>
+              </div>
+              <div className="text-2xl font-bold text-yellow-400 mb-4">
+                {forecast.freeSummary}
+              </div>
+              
+              {/* Unlocked Content */}
+              {isUnlocked && unlockedContent && (
+                <div className="mt-6 space-y-4">
+                  <div className="border-t border-slate-600 pt-4">
+                    <h3 className="font-semibold text-green-400 mb-2 flex items-center gap-2">
+                      <Shield className="w-4 h-4" />
+                      Premium Analysis Unlocked
+                    </h3>
+                    <p className="text-slate-300 mb-4">{unlockedContent.detail}</p>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-slate-800/30 rounded-lg p-3">
+                        <div className="text-yellow-400 font-bold text-2xl">{unlockedContent.confidence}%</div>
+                        <div className="text-slate-400 text-sm">Confidence Score</div>
+                      </div>
+                      <div className="bg-slate-800/30 rounded-lg p-3">
+                        <div className="text-green-400 font-bold text-lg">AI Generated</div>
+                        <div className="text-slate-400 text-sm">Analysis Method</div>
+                      </div>
+                    </div>
+                    
+                    {unlockedContent.key_drivers && (
+                      <div className="mt-4">
+                        <h4 className="font-semibold mb-2 text-slate-200">Key Economic Drivers:</h4>
+                        <ul className="list-disc list-inside text-slate-300 space-y-1">
+                          {unlockedContent.key_drivers.map((driver, index) => (
+                            <li key={index} className="text-sm">{driver}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
 
-            <p className="text-slate-300 text-center">Stake DAG tokens to see confidence scores, breakdowns and trends,</p>
+            {/* Show staking options only if not unlocked */}
+            {!isUnlocked && (
+              <>
+                <div className="text-center space-y-3">
+                  <div className="flex items-center justify-center gap-2 text-slate-400">
+                    <Eye className="w-4 h-4" />
+                    <span>Preview Mode - Limited Information</span>
+                  </div>
+                  <p className="text-slate-300">Stake DAG tokens to unlock AI-powered analysis, confidence scores, and detailed forecasts</p>
+                </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="text-center flex flex-col gap-3">
-                <h3 className="font-bold text-yellow-400">Stake 50 tokens</h3>
-                <p className="text-sm font-semibold">Basic Unlock</p>
-                <p className="text-xs text-slate-400 flex-grow">Past Trend Overview (last 2 yrs only)</p>
-                <StakeButton onStake={handleStake} amount={50} isLoading={isLoading} feedback={feedback} />
+                <div className="bg-slate-800/30 border border-slate-700 rounded-lg p-4">
+                  <h3 className="text-yellow-400 font-semibold mb-2">What You'll Unlock:</h3>
+                  <ul className="text-slate-300 text-sm space-y-1">
+                    <li className="flex items-center gap-2"><TrendingUp className="w-3 h-3" /> Historical trend analysis</li>
+                    <li className="flex items-center gap-2"><Star className="w-3 h-3" /> AI confidence scoring</li>
+                    <li className="flex items-center gap-2"><BarChart className="w-3 h-3" /> Detailed economic drivers</li>
+                    <li className="flex items-center gap-2"><Shield className="w-3 h-3" /> Full methodology breakdown</li>
+                  </ul>
+                </div>
+              </>
+            )}
+
+            {/* Staking Options */}
+            {!isUnlocked && (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="text-center flex flex-col gap-3">
+                  <h3 className="font-bold text-yellow-400">Stake 50 tokens</h3>
+                  <p className="text-sm font-semibold">Basic Unlock</p>
+                  <p className="text-xs text-slate-400 flex-grow">AI Analysis & Confidence Scores</p>
+                  <StakeButton onStake={handleStake} amount={50} isLoading={isLoading} feedback={feedback} />
+                </div>
+                <div className="text-center flex flex-col gap-3">
+                  <h3 className="font-bold text-yellow-400">Stake 100 tokens</h3>
+                  <p className="text-sm font-semibold">Full Unlock</p>
+                  <p className="text-xs text-slate-400">Complete Analysis & Trends</p>
+                  <p className="text-xs text-slate-400 flex-grow">Premium Member Access</p>
+                  <StakeButton onStake={handleStake} amount={100} isLoading={isLoading} feedback={feedback} />
+                </div>
               </div>
-              <div className="text-center flex flex-col gap-3">
-                <h3 className="font-bold text-yellow-400">Stake 100 tokens</h3>
-                <p className="text-sm font-semibold">Full Unlock</p>
-                <p className="text-xs text-slate-400">Past Trend Overview (last 5 yrs only)</p>
-                <p className="text-xs text-slate-400 flex-grow">Membership access</p>
-                <StakeButton onStake={handleStake} amount={100} isLoading={isLoading} feedback={feedback} />
+            )}
+            
+            {/* Premium Access Link */}
+            {isUnlocked && (
+              <div className="text-center">
+                <Link 
+                  href={route('premium')} 
+                  className="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-slate-900 font-bold py-3 px-6 rounded-lg hover:from-yellow-300 hover:to-yellow-400 transition-all"
+                >
+                  <Star className="w-5 h-5" />
+                  View Premium Dashboard
+                </Link>
               </div>
-            </div>
+            )}
           </main>
 
           <footer className="mt-auto pt-8">

@@ -42,8 +42,18 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/forecasts/{forecast}', function (Forecast $forecast) {
-    return Inertia::render('Forecasts/Show', ['forecast' => $forecast]);
+    return Inertia::render('Forecasts/Show', [
+        'forecast' => $forecast,
+        'userStakeLevel' => 0 // This would normally come from user's blockchain data
+    ]);
 })->middleware(['auth'])->name('forecasts.show');
+
+Route::get('/premium', function () {
+    return Inertia::render('Premium', [
+        'userStakeLevel' => 0, // This would normally come from user's blockchain data
+        'unlockedForecasts' => [] // This would come from user's unlocked forecast data
+    ]);
+})->middleware(['auth'])->name('premium');
 
 Route::post('/wallet-login', [WalletAuthController::class, 'login'])->name('wallet.login');
 
