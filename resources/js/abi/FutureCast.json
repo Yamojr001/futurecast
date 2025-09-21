@@ -2,56 +2,6 @@
 	{
 		"inputs": [
 			{
-				"internalType": "uint256",
-				"name": "_forecastId",
-				"type": "uint256"
-			}
-		],
-		"name": "claimReward",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "_forecastId",
-				"type": "uint256"
-			},
-			{
-				"components": [
-					{
-						"internalType": "uint256",
-						"name": "amount",
-						"type": "uint256"
-					},
-					{
-						"internalType": "string",
-						"name": "description",
-						"type": "string"
-					}
-				],
-				"internalType": "struct FutureCast.StakingTier[]",
-				"name": "_tiers",
-				"type": "tuple[]"
-			}
-		],
-		"name": "createForecast",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "fundRewardPool",
-		"outputs": [],
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
 				"internalType": "address",
 				"name": "_stakingTokenAddress",
 				"type": "address"
@@ -80,6 +30,11 @@
 			}
 		],
 		"name": "OwnableUnauthorizedAccount",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "ReentrancyGuardReentrantCall",
 		"type": "error"
 	},
 	{
@@ -140,13 +95,6 @@
 		"type": "event"
 	},
 	{
-		"inputs": [],
-		"name": "renounceOwnership",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
 		"anonymous": false,
 		"inputs": [
 			{
@@ -189,42 +137,6 @@
 		],
 		"name": "RewardPoolFunded",
 		"type": "event"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "_forecastId",
-				"type": "uint256"
-			},
-			{
-				"internalType": "bool",
-				"name": "_wasCorrect",
-				"type": "bool"
-			}
-		],
-		"name": "setPredictionOutcome",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "_forecastId",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint8",
-				"name": "_tierIndex",
-				"type": "uint8"
-			}
-		],
-		"name": "stakeAndUnlock",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
 	},
 	{
 		"anonymous": false,
@@ -277,19 +189,6 @@
 		"type": "event"
 	},
 	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "newOwner",
-				"type": "address"
-			}
-		],
-		"name": "transferOwnership",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
 		"anonymous": false,
 		"inputs": [
 			{
@@ -315,6 +214,53 @@
 		"type": "event"
 	},
 	{
+		"stateMutability": "payable",
+		"type": "fallback"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_forecastId",
+				"type": "uint256"
+			}
+		],
+		"name": "claimReward",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_forecastId",
+				"type": "uint256"
+			},
+			{
+				"components": [
+					{
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					},
+					{
+						"internalType": "string",
+						"name": "description",
+						"type": "string"
+					}
+				],
+				"internalType": "struct FutureCast.StakingTier[]",
+				"name": "_tiers",
+				"type": "tuple[]"
+			}
+		],
+		"name": "createForecast",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
 		"inputs": [
 			{
 				"internalType": "uint256",
@@ -322,14 +268,10 @@
 				"type": "uint256"
 			}
 		],
-		"name": "withdrawStakedTokens",
+		"name": "emergencyWithdrawETH",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
-	},
-	{
-		"stateMutability": "payable",
-		"type": "receive"
 	},
 	{
 		"inputs": [
@@ -355,6 +297,70 @@
 				"internalType": "bool",
 				"name": "isResolved",
 				"type": "bool"
+			},
+			{
+				"internalType": "uint256",
+				"name": "totalStaked",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "fundRewardPool",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getContractBalance",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_forecastId",
+				"type": "uint256"
+			}
+		],
+		"name": "getForecastInfo",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "forecastId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bool",
+				"name": "outcome",
+				"type": "bool"
+			},
+			{
+				"internalType": "bool",
+				"name": "isResolved",
+				"type": "bool"
+			},
+			{
+				"internalType": "uint256",
+				"name": "totalStaked",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "tierCount",
+				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",
@@ -393,6 +399,61 @@
 	},
 	{
 		"inputs": [],
+		"name": "getTokenBalance",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_forecastId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "_user",
+				"type": "address"
+			}
+		],
+		"name": "getUserStakeInfo",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "stakeAmount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint8",
+				"name": "unlockLevel",
+				"type": "uint8"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "nextForecastId",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
 		"name": "owner",
 		"outputs": [
 			{
@@ -406,6 +467,62 @@
 	},
 	{
 		"inputs": [],
+		"name": "renounceOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "rewardPool",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_forecastId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bool",
+				"name": "_wasCorrect",
+				"type": "bool"
+			}
+		],
+		"name": "setPredictionOutcome",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_forecastId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint8",
+				"name": "_tierIndex",
+				"type": "uint8"
+			}
+		],
+		"name": "stakeAndUnlock",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
 		"name": "stakingToken",
 		"outputs": [
 			{
@@ -415,6 +532,19 @@
 			}
 		],
 		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "transferOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -464,5 +594,22 @@
 		],
 		"stateMutability": "view",
 		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_amount",
+				"type": "uint256"
+			}
+		],
+		"name": "withdrawStakedTokens",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"stateMutability": "payable",
+		"type": "receive"
 	}
 ]

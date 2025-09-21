@@ -362,5 +362,5 @@ For technical support or questions:
 
 This project is licensed under the MIT License.
 
-## Contract address 
-0x128D8D0226276CC493317f3B8cBd9A1d11bb97Ca
+const dagTokenAddress = "0x3aef535bf937185735aaf5b803983adc110e9d76"
+const futureCastAddress ="0x4058a46b47ccda82f3c7d63beb8547437ef1a41a" 
