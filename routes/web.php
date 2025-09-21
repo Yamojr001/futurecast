@@ -41,12 +41,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::get('/forecasts/{forecast}', function (Forecast $forecast) {
-    return Inertia::render('Forecasts/Show', [
-        'forecast' => $forecast,
-        'userStakeLevel' => 0 // This would normally come from user's blockchain data
-    ]);
-})->middleware(['auth'])->name('forecasts.show');
+Route::get('/forecasts/{forecast}', [ForecastController::class, 'show'])
+    ->middleware(['auth'])->name('forecasts.show');
 
 Route::get('/premium', function () {
     return Inertia::render('Premium', [
@@ -56,5 +52,11 @@ Route::get('/premium', function () {
 })->middleware(['auth'])->name('premium');
 
 Route::post('/wallet-login', [WalletAuthController::class, 'login'])->name('wallet.login');
+
+// API routes for authenticated access
+Route::middleware('auth')->prefix('api')->group(function () {
+    Route::get('/forecasts/{forecast}/unlock', [ForecastController::class, 'getUnlockedContent'])
+        ->name('api.forecasts.unlock');
+});
 
 require __DIR__.'/auth.php';
