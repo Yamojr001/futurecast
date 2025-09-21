@@ -9,8 +9,8 @@ import FutureCastABI from "@/abi/FutureCast.json";
 import ERC20ABI from "@/abi/ERC20.json";
 
 // Read addresses from .env (Vite)
-const dagTokenAddress = import.meta.env.VITE_DAG_TOKEN_ADDRESS;
-const futureCastAddress = import.meta.env.VITE_FUTURECAST_ADDRESS;
+const dagTokenAddress = "0x1EE25078bAf19E6834d40D60bafFE68e388223Ff"//mport.meta.env.VITE_DAG_TOKEN_ADDRESS;
+const futureCastAddress ="0x018F681A8B25b6DcB0dFedfa606695E844aa13CC" //import.meta.env.VITE_FUTURECAST_ADDRESS;
 
 function StakeButton({ onStake, amount, isLoading, feedback }) {
   const thisButtonIsLoading = isLoading && feedback.includes(String(amount));
